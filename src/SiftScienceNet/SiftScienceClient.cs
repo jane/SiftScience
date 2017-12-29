@@ -16,22 +16,22 @@ namespace SiftScienceNet
 {
     public interface ISiftScienceClient
     {
-        Task<ResponseStatus> CustomEvent(string userId, string type, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> CreateOrder(Order order, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> UpdateOrder(Order order, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> UpdateOrderStatus(UpdateOrderStatus status, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> Transaction(Transaction transaction, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> CreateAccount(Account account, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> UpdateAccount(Account account, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> AddItemToCart(string userId, Item item, string sessionId = "", bool returnScore = false);
-        Task<ResponseStatus> RemoveItemToCart(string userId, Item item, int quantity, string sessionId = "", bool returnScore = false);
-        Task<ResponseStatus> SubmitReview(Review review, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> CreateContent(Content content, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> UpdateContent(Content content, dynamic customFields = null, bool returnScore = false);
-        Task<ResponseStatus> SendMessage(string userId, string recipientUserId, string subject = "", string content = "", int? time = null, bool returnScore = false);
-        Task<ResponseStatus> Login(string userId, string sessionId, bool success, bool returnScore = false);
-        Task<ResponseStatus> Logout(string userId, bool returnScore = false);
-        Task<ResponseStatus> LinkSessionToUser(string userId, string sessionId, bool returnScore = false);
+        Task<ResponseStatus> CustomEvent(string userId, string type, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> CreateOrder(Order order, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> UpdateOrder(Order order, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> UpdateOrderStatus(UpdateOrderStatus status, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> Transaction(Transaction transaction, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> CreateAccount(Account account, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> UpdateAccount(Account account, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> AddItemToCart(string userId, Item item, dynamic customFields = null, string sessionId = "", ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> RemoveItemFromCart(string userId, Item item, int quantity, dynamic customFields = null, string sessionId = "", ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> SubmitReview(Review review, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> CreateContent(Content content, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> UpdateContent(Content content, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> SendMessage(string userId, string recipientUserId, string subject = "", string content = "", int? time = null, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> Login(string userId, string sessionId, bool success, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> Logout(string userId, dynamic customFields = null, ReturnType returnType = ReturnType.None);
+        Task<ResponseStatus> LinkSessionToUser(string userId, string sessionId, dynamic customFields = null, ReturnType returnType = ReturnType.None);
         Task<ResponseStatus> Label(string userId, bool isBad, AbuseType abuseType, string description = "", string analyst = "", string source = "");
         Task<ScoreResponse> GetSiftScore(string userId);
         Task<LegacyScoreResponse> GetSiftLegacyScore(string userId);
@@ -51,60 +51,62 @@ namespace SiftScienceNet
 
         #region Events
 
-        public async Task<ResponseStatus> CustomEvent(string userId, string type, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> CustomEvent(string userId, string type, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject o = new JObject();
+            JObject json = new JObject();
+	        if (customFields != null)
+	        {
+		        json = GetJsonObject(customFields);
+	        }
 
-            if (customFields != null)
-                o = JObject.Parse(JsonConvert.SerializeObject(customFields));
+			json.Add("$api_key", _apiKey);
+            json.Add("$type", type);
+            json.Add("$user_id", userId);
+            json.Add("$time", DateTime.UtcNow.ToUnixTimestamp());
 
-            o.Add("$api_key", _apiKey);
-            o.Add("$type", type);
-            o.Add("$user_id", userId);
-            o.Add("$time", DateTime.UtcNow.ToUnixTimestamp());
-
-            return await PostEvent(o.ToString(), returnScore).ConfigureAwait(false); ;
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
 
-        public async Task<ResponseStatus> CreateOrder(Order order, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> CreateOrder(Order order, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(order, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
-            json.Add("$api_key", _apiKey);
+	        var json = GetJsonObject(order);
+
+			json.Add("$api_key", _apiKey);
             json.Add("$type", "$create_order");
 
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> UpdateOrder(Order order, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> UpdateOrder(Order order, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(order, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            JObject json = GetJsonObject(order);
             json.Add("$api_key", _apiKey);
             json.Add("$type", "$update_order");
 
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> UpdateOrderStatus(UpdateOrderStatus order, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> UpdateOrderStatus(UpdateOrderStatus order, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(order, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            JObject json = GetJsonObject(order);
             json.Add("$api_key", _apiKey);
             json.Add("$type", "$order_status");
 
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        private void AddCustomFields(dynamic customFields, JObject json, bool returnScore = false)
+        private void AddCustomFields(dynamic customFields, JObject json, ReturnType returnType = ReturnType.None)
         {
             if (customFields != null)
             {
-                JObject o = JObject.Parse(JsonConvert.SerializeObject(customFields, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+                JObject o = GetJsonObject(customFields);
                 foreach (var value in o.Properties())
                 {
                     json.Add(value);
@@ -112,47 +114,50 @@ namespace SiftScienceNet
             }
         }
 
-        public async Task<ResponseStatus> Transaction(Transaction transaction, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> Transaction(Transaction transaction, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(transaction, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            JObject json = GetJsonObject(transaction);
             json.Add("$api_key", _apiKey);
             json.Add("$type", "$transaction");
+
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> CreateAccount(Account account, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> CreateAccount(Account account, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(account, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            JObject json = GetJsonObject(account);
             json.Add("$api_key", _apiKey);
             json.Add("$type", "$create_account");
+
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> Chargeback(Chargeback chargeback, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> Chargeback(Chargeback chargeback, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(chargeback, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            JObject json = GetJsonObject(chargeback);
             json.Add("$api_key", _apiKey);
             json.Add("$type", "$chargeback");
+
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> UpdateAccount(Account account, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> UpdateAccount(Account account, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(account, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            JObject json = GetJsonObject(account);
             json.Add("$api_key", _apiKey);
             json.Add("$type", "$update_account");
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> AddItemToCart(string userId, Item item, string sessionId = "", bool returnScore = false)
+        public async Task<ResponseStatus> AddItemToCart(string userId, Item item, dynamic customFields = null, string sessionId = "", ReturnType returnType = ReturnType.None)
         {
             JObject json = new JObject();
             json.Add("$api_key", _apiKey);
@@ -160,13 +165,15 @@ namespace SiftScienceNet
             json.Add("$user_id", userId);
             json.Add("$session_id", sessionId);
 
-            var jObjectItem = JObject.Parse(JsonConvert.SerializeObject(item, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+			AddCustomFields(customFields, json);
+
+            var jObjectItem = GetJsonObject(item);
             json.Add("$item", jObjectItem);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> RemoveItemToCart(string userId, Item item, int quantity, string sessionId = "", bool returnScore = false)
+        public async Task<ResponseStatus> RemoveItemFromCart(string userId, Item item, int quantity, dynamic customFields = null, string sessionId = "", ReturnType returnType = ReturnType.None)
         {
             JObject json = new JObject();
             json.Add("$api_key", _apiKey);
@@ -175,46 +182,48 @@ namespace SiftScienceNet
             json.Add("$session_id", sessionId);
             json.Add("$quantity", quantity);
 
-            var jObjectItem = JObject.Parse(JsonConvert.SerializeObject(item, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+			AddCustomFields(customFields, json);
+
+            var jObjectItem = GetJsonObject(item);
             json.Add("$item", jObjectItem);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> SubmitReview(Review review, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> SubmitReview(Review review, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(review, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            JObject json = GetJsonObject(review);
             json.Add("$api_key", _apiKey);
             json.Add("$type", "$submit_review");
 
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> CreateContent(Content content, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> CreateContent(Content content, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(content, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            JObject json = GetJsonObject(content);
             json.Add("$api_key", _apiKey);
             json.Add("$type", "$create_content");
 
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> UpdateContent(Content content, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> UpdateContent(Content content, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
-            JObject json = JObject.Parse(JsonConvert.SerializeObject(content, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            JObject json = GetJsonObject(content);
             json.Add("$api_key", _apiKey);
             json.Add("$type", "$update_content");
 
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> FlagContent(string userId, string contentId, string flagedBy, dynamic customFields = null, bool returnScore = false)
+        public async Task<ResponseStatus> FlagContent(string userId, string contentId, string flagedBy, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
             var json = new JObject();
 
@@ -226,10 +235,10 @@ namespace SiftScienceNet
 
             AddCustomFields(customFields, json);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+            return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> SendMessage(string userId, string recipientUserId, string subject = "", string content = "", int? time = null, bool returnScore = false)
+        public async Task<ResponseStatus> SendMessage(string userId, string recipientUserId, string subject = "", string content = "", int? time = null, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
             JObject json = new JObject();
 
@@ -247,10 +256,12 @@ namespace SiftScienceNet
             if (time.HasValue)
                 json.Add("$time", time.Value);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+	        AddCustomFields(customFields, json);
+
+			return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> Login(string userId, string sessionId, bool success, bool returnScore = false)
+        public async Task<ResponseStatus> Login(string userId, string sessionId, bool success, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
             JObject json = new JObject();
 
@@ -260,10 +271,12 @@ namespace SiftScienceNet
             json.Add("$session_id", sessionId);
             json.Add("$login_status", success ? "$success" : "$failure");
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+	        AddCustomFields(customFields, json);
+
+			return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> Logout(string userId, bool returnScore = false)
+        public async Task<ResponseStatus> Logout(string userId, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
             JObject json = new JObject();
 
@@ -271,10 +284,12 @@ namespace SiftScienceNet
             json.Add("$type", "$logout");
             json.Add("$user_id", userId);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+	        AddCustomFields(customFields, json);
+
+			return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        public async Task<ResponseStatus> LinkSessionToUser(string userId, string sessionId, bool returnScore = false)
+        public async Task<ResponseStatus> LinkSessionToUser(string userId, string sessionId, dynamic customFields = null, ReturnType returnType = ReturnType.None)
         {
             JObject json = new JObject();
 
@@ -283,20 +298,42 @@ namespace SiftScienceNet
             json.Add("$user_id", userId);
             json.Add("$session_id", sessionId);
 
-            return await PostEvent(json.ToString(), returnScore).ConfigureAwait(false);
+	        AddCustomFields(customFields, json);
+
+			return await PostEvent(json.ToString(), returnType).ConfigureAwait(false);
         }
 
-        private async Task<ResponseStatus> PostEvent(string jsonContent, bool returnScore)
+        private async Task<ResponseStatus> PostEvent(string jsonContent, ReturnType returnType)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            HttpResponseMessage response = await client.PostAsync(returnScore ? Globals.EventsWithScoreEndpoint : Globals.EventsEndpoint, new StringContent(jsonContent, Encoding.UTF8, "application/json")).ConfigureAwait(false);
+	        string endpoint;
+	        switch (returnType)
+	        {
+		        case ReturnType.None:
+			        endpoint = Globals.EventsEndpoint;
+					break;
+		        case ReturnType.Score:
+			        endpoint = Globals.EventsWithScoreEndpoint;
+			        break;
+		        case ReturnType.WorkflowStatus:
+			        endpoint = Globals.EventsWithWorkflowStatusEndpoint;
+			        break;
+		        default:
+			        throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
+	        }
+            HttpResponseMessage response = await client.PostAsync(endpoint, new StringContent(jsonContent, Encoding.UTF8, "application/json")).ConfigureAwait(false);
 
             var siftResponse = JsonConvert.DeserializeObject<SiftResponse>(response.Content.ReadAsStringAsync().Result);
 
             return new ResponseStatus { Success = response.IsSuccessStatusCode, SiftResponse = siftResponse, StatusCode = (int)response.StatusCode };
         }
+
+	    private JObject GetJsonObject(object o)
+	    {
+		    return JObject.FromObject(o, JsonSerializer.Create(new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}));
+		}
 
         #endregion
 
