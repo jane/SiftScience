@@ -6,6 +6,10 @@
     <Authors>John Spens</Authors>
     <Company>Jane</Company>
     <Description>SiftScience is a .NET Standard 2.0 class library that provides an easy-to-use async interface for the SiftScience SiftScience web api.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseUrl>https://github.com/jane/SiftScience/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jane/SiftScience</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jane/SiftScience</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
