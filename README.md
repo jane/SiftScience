@@ -1,7 +1,7 @@
 SiftScience
 ===========
 
-SiftScience is a .NET class library for the  [SiftScience](https://siftscience.com) SiftScience web api. 
+SiftScience is a .NET class library for the  [SiftScience](https://siftscience.com) web api. 
 
 ## Installation
 
