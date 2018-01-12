@@ -43,10 +43,12 @@ namespace SiftScience
     public class SiftScienceClient : ISiftScienceClient
     {
         private static string _apiKey;
+        private static TimeSpan _timeout;
 
-        public SiftScienceClient(string apiKey)
+        public SiftScienceClient(string apiKey, int timeoutSeconds = 30)
         {
             _apiKey = apiKey;
+            _timeout = TimeSpan.FromSeconds(timeoutSeconds);
         }
 
         #region Events
@@ -301,7 +303,7 @@ namespace SiftScience
 
         private async Task<ResponseStatus> PostEvent(string jsonContent, ReturnType returnType)
         {
-            var client = new HttpClient();
+            var client = new HttpClient { Timeout = _timeout };
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             string endpoint;
@@ -363,7 +365,7 @@ namespace SiftScience
 
             var json = JsonConvert.SerializeObject(baseObject, Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
-            var client = new HttpClient();
+            var client = new HttpClient { Timeout = _timeout };
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = await client.PostAsync(string.Format(Globals.LabelsEndpoint, Uri.EscapeDataString(userId)), new StringContent(json, Encoding.UTF8, "application/json")).ConfigureAwait(false);
 
@@ -389,7 +391,7 @@ namespace SiftScience
 
         public async Task<ScoreResponse> GetSiftScore(string userId)
         {
-            var client = new HttpClient();
+            var client = new HttpClient { Timeout = _timeout };
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             HttpResponseMessage response = await client.GetAsync(string.Format(Globals.ScoresEndpoint, Uri.EscapeDataString(userId), _apiKey)).ConfigureAwait(false);
@@ -410,7 +412,7 @@ namespace SiftScience
 
         public async Task<LegacyScoreResponse> GetSiftLegacyScore(string userId)
         {
-            var client = new HttpClient();
+            var client = new HttpClient { Timeout = _timeout };
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             HttpResponseMessage response = await client.GetAsync(string.Format(Globals.LegacyScoreEndpoint, Uri.EscapeDataString(userId), _apiKey)).ConfigureAwait(false);
