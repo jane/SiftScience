@@ -8,6 +8,7 @@
     <owners>John Spens</owners>
     <licenseUrl>https://github.com/jane/SiftScience/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/jane/SiftScience</projectUrl>
+    <iconUrl>https://github.com/jane/SiftScience/blob/master/SiftScience.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes></releaseNotes>
