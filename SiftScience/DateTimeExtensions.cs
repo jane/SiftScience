@@ -5,17 +5,11 @@ namespace SiftScience
     public static class DateTimeExtensions
     {
         /// <summary>
-        /// Converts datetime to Unix Timestamp (ISO 8601)
+        /// Converts DateTime to Unix Timestamp (ISO 8601)
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static int ToUnixTime(this DateTime value)
+        public static long ToUnixTimestamp(this DateTime date)
         {
-            if (value.Kind != DateTimeKind.Utc) value = value.ToUniversalTime();
-
-            var seconds = (int)(value - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-
-            return seconds;
+            return new DateTimeOffset(date).ToUnixTimeSeconds();
         }
     }
 }

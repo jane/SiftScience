@@ -11,6 +11,7 @@ using SiftScience.Labels;
 using SiftScience.Scores;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SiftScience.Decisions;
 
 namespace SiftScience
 {
@@ -35,6 +36,7 @@ namespace SiftScience
         Task<ResponseStatus> Label(string userId, bool isBad, AbuseType abuseType, string description = "", string analyst = "", string source = "");
         Task<ScoreResponse> GetSiftScore(string userId);
         Task<LegacyScoreResponse> GetSiftLegacyScore(string userId);
+        Task<DecisionsResponse> GetDecisions(string accountId);
     }
 
     /// <summary>
@@ -404,6 +406,33 @@ namespace SiftScience
             }
 
             return new ScoreResponse { Status = (int)response.StatusCode };
+        }
+
+        #endregion
+
+        #region Decisions
+
+        public async Task<DecisionsResponse> GetDecisions(string accountId)
+        {
+            var client = new HttpClient { Timeout = _timeout };
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var byteArray = Encoding.ASCII.GetBytes(_apiKey);
+            var base64 = Convert.ToBase64String(byteArray);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", base64);
+
+            HttpResponseMessage response = await client.GetAsync(string.Format(Globals.DecisionsEndpoint, accountId)).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = response.Content.ReadAsStringAsync().Result;
+
+                var decisionsResponse = JsonConvert.DeserializeObject<DecisionsResponse>(json);
+                decisionsResponse.Status = response.StatusCode;
+                return decisionsResponse;
+            }
+
+            return new DecisionsResponse { Status = response.StatusCode };
         }
 
         #endregion

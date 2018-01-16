@@ -44,8 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DecimalExtensions.cs" />
+    <Compile Include="Decisions\Category.cs" />
+    <Compile Include="Decisions\Decision.cs" />
+    <Compile Include="Decisions\DecisionsResponse.cs" />
+    <Compile Include="Decisions\EntityType.cs" />
     <Compile Include="Events\Address.cs" />
     <Compile Include="Events\Chargeback.cs" />
     <Compile Include="Events\Content.cs" />
@@ -75,7 +78,7 @@
     <Compile Include="Scores\WorkflowStatus.cs" />
     <Compile Include="SiftResponse.cs" />
     <Compile Include="SiftScienceClient.cs" />
-    <Compile Include="TimeExtensions.cs" />
+    <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="Events\Account.cs" />
     <Compile Include="Labels\AbuseType.cs" />
     <Compile Include="Scores\AppConfig.cs" />

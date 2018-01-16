@@ -10,5 +10,6 @@
         public const string LabelsEndpoint = Authority + "/v204/users/{0}/labels";
         public const string ScoresEndpoint = Authority + "/v204/score/{0}/?api_key={1}";
         public const string LegacyScoreEndpoint = Authority + "/v204/score/{0}/?abuse_types=legacy&api_key={1}";
+        public const string DecisionsEndpoint = Authority + "/v3/accounts/{0}/decisions";
     }
 }
