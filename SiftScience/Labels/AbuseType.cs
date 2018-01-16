@@ -8,12 +8,16 @@ namespace SiftScience.Labels
     public enum AbuseType
     {
         [EnumMember(Value = "payment_abuse")]
-        Payment,
+        PaymentAbuse,
         [EnumMember(Value = "content_abuse")]
-        Content,
+        ContentAbuse,
         [EnumMember(Value = "promotion_abuse")]
-        Promotion,
+        PromotionAbuse,
         [EnumMember(Value = "account_abuse")]
-        Account
+        AccountAbuse,
+        [EnumMember(Value = "legacy")]
+        Legacy,
+        [EnumMember(Value = "account_takeover")]
+        AccountTakeover
     }
 }

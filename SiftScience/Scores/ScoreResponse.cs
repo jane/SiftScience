@@ -73,13 +73,17 @@ namespace SiftScience.Scores
                 AbuseType? abuseType = null;
 
                 if (str.Equals("payment_abuse"))
-                    abuseType = AbuseType.Payment;
+                    abuseType = AbuseType.PaymentAbuse;
                 if (str.Equals("content_abuse"))
-                    abuseType = AbuseType.Content;
+                    abuseType = AbuseType.ContentAbuse;
                 if (str.Equals("promotion_abuse"))
-                    abuseType = AbuseType.Promotion;
+                    abuseType = AbuseType.PromotionAbuse;
                 if (str.Equals("account_abuse"))
-                    abuseType = AbuseType.Account;
+                    abuseType = AbuseType.AccountAbuse;
+                if (str.Equals("legacy"))
+                    abuseType = AbuseType.Legacy;
+                if (str.Equals("account_takeover"))
+                    abuseType = AbuseType.AccountTakeover;
                 if (abuseType != null)
                 {
                     finalDictionary.Add(abuseType.GetValueOrDefault(), pair.Value);
