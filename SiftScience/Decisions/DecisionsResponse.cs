@@ -6,7 +6,7 @@ namespace SiftScience.Decisions
 {
     public class DecisionsResponse
     {
-        public HttpStatusCode Status { get; set; }
+        public bool Success { get; set; }
 
         [JsonProperty("data")]
         public List<Decision> Decisions { get; set; }

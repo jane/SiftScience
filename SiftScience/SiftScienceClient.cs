@@ -428,11 +428,11 @@ namespace SiftScience
                 var json = response.Content.ReadAsStringAsync().Result;
 
                 var decisionsResponse = JsonConvert.DeserializeObject<DecisionsResponse>(json);
-                decisionsResponse.Status = response.StatusCode;
+                decisionsResponse.Success = true;
                 return decisionsResponse;
             }
 
-            return new DecisionsResponse { Status = response.StatusCode };
+            return new DecisionsResponse { Success = false };
         }
 
         #endregion
